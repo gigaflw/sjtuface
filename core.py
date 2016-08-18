@@ -72,8 +72,8 @@ class FaceRecognitionSys:
         self._create_group(self.group_name, reconstruct)
 
         print("Creating person...")
-        for name, face_id in faces.items():
-            self._create_person(name, reconstruct, face_id=face_id, group_name=self.group_name)
+        for name, face_ids in faces.items():
+            self._create_person(name, reconstruct, face_id=face_ids, group_name=self.group_name)
 
         print("Training...")
         training = self.api.train.identify(group_name=self.group_name)
@@ -176,10 +176,12 @@ class FaceRecognitionSys:
         if db_img_dir is None:
             db_img_dir = self.db_img_dir
 
-        for img_name in os.listdir(db_img_dir):
-            img_f = facepp.File(os.path.join(db_img_dir, img_name))
-            person_name = img_name.split(".")[0]  # remove suffix name
-            faces[person_name] = self._detect_face(img_f)
+        for person_name in os.listdir(db_img_dir):
+            person_img_dir = os.path.join(db_img_dir, person_name)
+            faces[person_name]=[]
+            for img_name in os.listdir(person_img_dir):
+                img_f = facepp.File(os.path.join(person_img_dir, img_name))
+                faces[person_name].append(self._detect_face(img_f))
 
         return faces
 
